@@ -635,6 +635,7 @@ let session = [];
 let currentIdx = 0;
 let flipped = false;
 let score = {o:0, x:0, skip:0};
+let wrongQuestions = [];
 
 // Init chapter grid
 function initUI() {
@@ -721,6 +722,7 @@ function startSession() {
   session = filtered;
   currentIdx = 0;
   score = {o:0, x:0, skip:0};
+  wrongQuestions = [];
   flipped = false;
   renderCard();
 }
@@ -804,6 +806,7 @@ function answer(type) {
     score.o++;
   } else {
     score.x++;
+    wrongQuestions.push(session[currentIdx]);
   }
   currentIdx++;
   flipped = false;
@@ -836,20 +839,20 @@ function renderResult() {
       </div>
       <div class="result-btns">
         <button class="result-btn result-btn-primary" onclick="startSession()">▶ もう一度</button>
-        <button class="result-btn result-btn-secondary" onclick="retryWrong()">✕ 不正解のみ再挑戦</button>
+        <button class="result-btn result-btn-secondary" onclick="retryWrong()" ${score.x === 0 ? 'disabled style="opacity:.4;cursor:default;"' : ''}>✕ 不正解のみ再挑戦（${score.x}問）</button>
       </div>
     </div>
   `;
 }
 
 function retryWrong() {
-  // Re-run with same session but only wrong ones — for simplicity, just reshuffle
-  // Actually since we don't track which were wrong, restart with shuffle
-  alert('現在の設定でランダム再出題します。');
-  mode = 'shuffle';
-  document.getElementById('modeShuffle').classList.add('active');
-  document.getElementById('modeSeq').classList.remove('active');
-  startSession();
+  if(!wrongQuestions.length) return;
+  session = [...wrongQuestions].sort(() => Math.random() - .5);
+  currentIdx = 0;
+  score = {o:0, x:0, skip:0};
+  wrongQuestions = [];
+  flipped = false;
+  renderCard();
 }
 
 // Add input listeners
