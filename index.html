@@ -7,21 +7,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0f0e0c;
-  --surface: #1a1815;
-  --surface2: #231f1b;
-  --border: #2e2a25;
-  --gold: #c9a84c;
-  --gold-light: #e4c97a;
-  --gold-dim: #7a6430;
-  --text: #e8dcc8;
-  --text-dim: #8a7d68;
-  --text-muted: #534a3f;
-  --correct: #4a9b6f;
-  --correct-bg: #1a3328;
-  --wrong: #9b4a4a;
-  --wrong-bg: #331a1a;
-  --accent: #b87333;
+  --bg: #0a1628;
+  --surface: #0e1f3a;
+  --surface2: #142847;
+  --border: #1e3d60;
+  --gold: #5bc8e8;
+  --gold-light: #90dff0;
+  --gold-dim: #2a7a9a;
+  --text: #dceefa;
+  --text-dim: #6a9ab8;
+  --text-muted: #2a4a68;
+  --correct: #3ab88a;
+  --correct-bg: #0a2820;
+  --wrong: #e05a6a;
+  --wrong-bg: #2a0d14;
+  --accent: #3aaad0;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,12 +37,12 @@ body {
 
 /* Header */
 .header {
-  border-bottom: 1px solid var(--border);
+  border-bottom: 3px solid var(--gold);
   padding: 14px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--surface);
+  background: #0a1628;
 }
 .header-title {
   font-family: 'Shippori Mincho', serif;
@@ -207,7 +207,7 @@ body {
 
 /* Start button */
 .start-btn {
-  background: linear-gradient(135deg, var(--gold-dim), var(--accent));
+  background: linear-gradient(135deg, #1a5a80, #3aaad0);
   border: none;
   color: var(--gold-light);
   font-family: 'Shippori Mincho', serif;
@@ -222,6 +222,12 @@ body {
 }
 .start-btn:hover { opacity: .85; transform: translateY(-1px); }
 .start-btn:active { transform: translateY(0); }
+.limit-row{display:flex;align-items:center;gap:6px;}
+.limit-input{width:68px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:.8rem;padding:5px 8px;border-radius:3px;font-family:'Noto Sans JP',sans-serif;outline:none;transition:border-color .15s;}
+.limit-input:focus{border-color:var(--gold);}
+.limit-label{font-size:.78rem;color:var(--text-dim);}
+.limit-all-btn{font-size:.62px;padding:3px 7px;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);border-radius:3px;cursor:pointer;transition:all .15s;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;}
+.limit-all-btn:hover{border-color:var(--gold);color:var(--text);}
 
 .question-count-preview {
   text-align: center;
@@ -290,7 +296,7 @@ body {
 }
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  background: linear-gradient(90deg, #2a7a9a, #5bc8e8);
   border-radius: 2px;
   transition: width .3s ease;
 }
@@ -509,7 +515,7 @@ body {
   letter-spacing: .04em;
 }
 .result-btn-primary {
-  background: linear-gradient(135deg, var(--gold-dim), var(--accent));
+  background: linear-gradient(135deg, #1a5a80, #3aaad0);
   border: none;
   color: var(--gold-light);
   font-weight: 600;
@@ -598,6 +604,14 @@ body {
     </div>
 
     <div>
+    <div class="filter-section">
+      <div class="filter-label">Questions Limit</div>
+      <div class="limit-row">
+        <input type="number" class="limit-input" id="limitNum" placeholder="全問" min="1">
+        <span class="limit-label">題</span>
+        <button class="limit-all-btn" onclick="document.getElementById('limitNum').value='';updateCount()">全問</button>
+      </div>
+    </div>
       <div class="question-count-preview" id="countPreview">対象: <span id="countNum">0</span> 問</div>
       <br>
       <button class="start-btn" onclick="startSession()">▶ 開始する</button>
@@ -711,8 +725,10 @@ function getFiltered() {
 }
 
 function updateCount() {
-  const n = getFiltered().length;
-  document.getElementById('countNum').textContent = n.toLocaleString();
+  const total = getFiltered().length;
+  const lim = parseInt(document.getElementById('limitNum').value)||0;
+  const show = lim>0 ? Math.min(lim,total) : total;
+  document.getElementById('countNum').textContent = (lim>0&&lim<total) ? show.toLocaleString()+' / '+total.toLocaleString() : show.toLocaleString();
 }
 
 function startSession() {
@@ -721,6 +737,8 @@ function startSession() {
   if(mode === 'shuffle') {
     filtered = [...filtered].sort(() => Math.random() - .5);
   }
+  const lim = parseInt(document.getElementById('limitNum').value)||0;
+  if(lim>0 && lim<filtered.length) filtered = filtered.slice(0, lim);
   session = filtered;
   currentIdx = 0;
   score = {o:0, x:0, skip:0};
@@ -862,6 +880,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initUI();
   document.getElementById('pageMin').addEventListener('input', updateCount);
   document.getElementById('pageMax').addEventListener('input', updateCount);
+  document.getElementById('limitNum').addEventListener('input', updateCount);
 });
 </script>
 </body>
